@@ -131,9 +131,20 @@ plotdata$z[ plotdata$z< (-2) ] = -2
 plotdata$genegroup = genetree$color[match(plotdata$gene,rownames(genetree))]
 plotdata$group = Idents(CM)[match(plotdata$sample,names(Idents(CM)))]
 
+"dCM_8_SHAM_P1" "CM_0_SHAM_P1"  "CM_5_SHAM_P1"  "CM_1_SHAM_P1" 
+"CM_7_SHAM_P1"  "CM_19_SHAM_P1" "CM_2_SHAM_P1"  "CM_15_SHAM_P1"
+"CM_1_MI_P1"    "CM_0_MI_P1"    "dCM_8_MI_P1"   "CM_2_MI_P1"   
+"CM_5_MI_P1"    "CM_7_MI_P1"    "CM_19_MI_P1"   "CM_15_MI_P1"  
+"CM_1_SHAM_P9"  "CM_15_SHAM_P9" "CM_0_SHAM_P9"  "CM_5_SHAM_P9" 
+"dCM_8_SHAM_P9" "CM_2_SHAM_P9"  "CM_7_SHAM_P9"  "CM_19_SHAM_P9"
+"CM_0_MI_P9"    "CM_5_MI_P9"    "CM_1_MI_P9"    "CM_2_MI_P9"   
+["CM_15_MI_P9"   "dCM_8_MI_P9"   "CM_19_MI_P9"   "CM_7_MI_P9"   
+
+## to speed up
+plotdata2 = plotdata[ plotdata$sample %in% sample(colnames(DE.cells),ncol(DE.cells)/4), ]
 png("CM_masterheatmap.png",width=3000,height=3000,res=300)
-ggplot(plotdata,aes(x=sample,y=gene))+geom_tile(aes(fill=z))+theme_bw()+theme(panel.grid=element_blank(),axis.text=element_blank(),axis.ticks=element_blank())+scale_fill_gradientn(values=rescale(c(-1,0,1)),colors=c("darkblue","turquoise","white","orange","orangered3")
-)+facet_grid(genegroup~group,space="free",scale="free")
+ggplot(plotdata2,aes(x=sample,y=gene))+geom_tile(aes(fill=z))+theme_bw()+theme(panel.grid=element_blank(),axis.text=element_blank(),axis.ticks=element_blank())+scale_fill_gradientn(values=rescale(c(-1,0,1)),colors=c("darkblue","turquoise","white","orange","orangered3")
+)+facet_grid(genegroup~group,space="free",scale="free")+theme(panel.spacing=unit(0,"lines"))
 dev.off()
 
 
