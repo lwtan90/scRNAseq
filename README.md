@@ -1,1 +1,1 @@
-# Learning curve for single-cell RNA-seq analysus  
+# Learning curve for single-cell RNA-seq analysis  
