@@ -120,6 +120,7 @@ dev.off()
 
 
 ## Extract CM-specific single-cell profiles
+DefaultAssay(heart) <- "RNA"
 CM <- subset(heart, subset = CT == c("CM","dCM"))
 CM.cells = as.data.frame(heart@assays$RNA@data)
 DE.cells = CM.cells[ rownames(CM.cells) %in% merged$gene, ]
