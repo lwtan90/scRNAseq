@@ -30,6 +30,6 @@ This Rscript will read the output from 10x cellranger, and generate SCTransforme
 Usually, I prefer to set the threshold that is consistent across different replicates to ensure faire comparison, but this should be reviewed on a case-by-case basis.  
 
   
-![Example QC of scRNA data](/assets/images/QC.png)  
+![Example QC of scRNA data](/images/QC.png)  
 
  
