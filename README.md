@@ -13,3 +13,23 @@ Command:
 cellranger-arc count --id=$ID --reference=$REF --libraries=$LIB --localcores=8 --localmem=120
 
 ```  
+
+  
+## Quality control of the 10x sequencing data  
+Tools: Seurat / cellrange output  
+```
+# for full command, see R script in bin/R/seurat.R
+
+Rscript bin/R/seurat.R  
+
+```  
+
+### Description for this script  
+This Rscript will read the output from 10x cellranger, and generate SCTransformed (normalized) data for analysis or integration.  
+
+Usually, I prefer to set the threshold that is consistent across different replicates to ensure faire comparison, but this should be reviewed on a case-by-case basis.  
+
+  
+![Example QC of scRNA data](/assets/images/QC.png)  
+
+ 
