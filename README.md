@@ -59,4 +59,10 @@ All output should be saved in RDS / R data for other applications. Together in t
 
 
 
- 
+## Subset Cell Type of Interest for Further Analysis  
+Sometimes you might want to look at specific cell type to decide if new clusters might be formed using a new sets of variable features.  
+This script to use is in the bin/R/subset.R  
+```  
+Rscript subset.R
+```    
+
