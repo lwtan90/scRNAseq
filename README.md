@@ -66,3 +66,14 @@ This script to use is in the bin/R/subset.R
 Rscript subset.R
 ```    
 
+The next step might be to visualize the distribution of the cell distribution within each condition.  
+```
+Rscript plotSAMPLEdistribution.R
+```  
+  
+## Perform Pathway Analysis using single-cell RNA-seq dataset  
+```  
+Rscript pathTEST.R
+```  
+  
+
