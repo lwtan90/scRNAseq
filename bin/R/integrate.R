@@ -1,43 +1,53 @@
-library(Signac)
+### Integrate.R ###
+# This script performs integration of single-cell datasets prior to differential gene expression analysis
+# Need to tailor this script depending on the number of samples, and also whether it is multiome or just scRNA-seq
+# Here I am running integration on multiome datasets for DCM with 3 samples (three condition)
+# If you are running scRNA-seq, just run Section 1.
+# If you are running 10x Multiome, run Section 1 and Section 2.
+###################
+
+### Loaing required packages
+## for scRNA-seq
 library(Seurat)
 library(ggplot2)
 library(patchwork)
 require(data.table)
-#library(JASPAR2020)
-#library(TFBSTools)
 require(sctransform)
 library(glmGamPoi)
 
+## for Multiome
+library(Signac)
 
 ## change this accoarding to organism
 # load this just to get one of the function required
-#library(EnsDb.Rnorvegicus.v79)
-#library(BSgenome.Rnorvegicus.UCSC.rn6)
+library(EnsDb.Rnorvegicus.v79)
+library(BSgenome.Rnorvegicus.UCSC.rn6)
 
 ## For PNG file
 options(bitmapType="cairo")
-
 set.seed(1234)
 
-#gtf = rtracklayer::import("/labs/joewu/wlwtan/annotation/hg38/arc/gencode.v38.filtered.annotation.biotype.gtf")
-#gene.coords <- gtf[gtf$type == 'gene']
-#seqlevelsStyle(gene.coords) <- 'UCSC'
-#annotation <- keepStandardChromosomes(gene.coords, pruning.mode = 'coarse')
+### If dealing with mouse, change GTF path
+gtf = rtracklayer::import("/labs/joewu/wlwtan/annotation/hg38/arc/gencode.v38.filtered.annotation.biotype.gtf")
+gene.coords <- gtf[gtf$type == 'gene']
+seqlevelsStyle(gene.coords) <- 'UCSC'
+annotation <- keepStandardChromosomes(gene.coords, pruning.mode = 'coarse')
 
-if(0){
-load("../control/control/seurat/sctransformed.RData")
-DefaultAssay(heart) = "SCT"
-control = heart
+### Load individual libraries (must be sctransformed)
+control = readRDS("../SS5/JXZ43/seurat/LSI_final_heart_ATAC.RDS")
+control
 
-load("../LMNA1/control/seurat/sctransformed.RData")
-DefaultAssay(heart) = "SCT"
-LMNA1 = heart
+LMNA1 = readRDS("../SS6/JXZ43/seurat/LSI_final_heart_ATAC.RDS")
+LMNA1
 
-load("../LMNA2/control/seurat/sctransformed.RData")
-DefaultAssay(heart) = "SCT"
-LMNA2 = heart
+LMNA2 = readRDS("../SS6/JXZ43/seurat/LSI_final_heart_ATAC.RDS")
+LMNA2
 
-rm(heart)
+## change this accordingly
+control$dataset <- "control"
+LMNA1$dataset <- "LMNA1"
+LMNA2$dataset <- "LMNA2"
+
 
 heart.list <- list(control=control,LMNA1=LMNA1, LMNA2=LMNA2)
 features <- SelectIntegrationFeatures(object.list=heart.list,nfeatures=3000)
