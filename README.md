@@ -14,6 +14,9 @@ When you received the FASTQ file from Novogene, just follow the following workfl
 6. create data for RShiny app  
 7. perform gene marker discovery using findMarker.R  
 8. perform gene differential analysis using seurat_pairwise_DEanalysis.R  
+9. perform pathway analysis of differentially expressed genes using pathTEST.R  
+  
+
   
 
 ## Alignment of FASTQ files  
