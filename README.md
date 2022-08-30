@@ -4,6 +4,18 @@ Date: Aug 2022
 Purpose: Document analysis workflow for scRNA-seq/Multiome  
 
   
+## General Workflow In A Glance When Starting with FASTQ Files  
+When you received the FASTQ file from Novogene, just follow the following workflow:  
+1. run cellranger (if scRNA) or cellranger-arc (if multiome): See below  
+2. run seurat.R (see below)  
+3. run quality control across the replicates (qc.R)  
+4. run seurat.R (see below)  
+5. run seurat_integration.R  (see below)  
+6. create data for RShiny app  
+7. perform gene marker discovery using findMarker.R  
+8. perform gene differential analysis using seurat_pairwise_DEanalysis.R  
+  
+
 ## Alignment of FASTQ files  
 Tool: cellranger (scRNA-seq) and cellrange-arc (multiome)  
 Command:  
