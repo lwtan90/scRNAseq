@@ -6,7 +6,7 @@
 # If you are running 10x Multiome, run Section 1 and Section 2.
 ###################
 
-### Loaing required packages
+### Loading required packages
 ## for scRNA-seq
 library(Seurat)
 library(ggplot2)
@@ -20,12 +20,9 @@ library(Signac)
 
 ## change this accoarding to organism
 # load this just to get one of the function required
+# for the annotation, we will read in custom GTF files to ensure compatibility with the cellranger DB
 library(EnsDb.Rnorvegicus.v79)
 library(BSgenome.Rnorvegicus.UCSC.rn6)
-
-## For PNG file
-options(bitmapType="cairo")
-set.seed(1234)
 
 ### If dealing with mouse, change GTF path
 gtf = rtracklayer::import("/labs/joewu/wlwtan/annotation/hg38/arc/gencode.v38.filtered.annotation.biotype.gtf")
@@ -33,14 +30,22 @@ gene.coords <- gtf[gtf$type == 'gene']
 seqlevelsStyle(gene.coords) <- 'UCSC'
 annotation <- keepStandardChromosomes(gene.coords, pruning.mode = 'coarse')
 
+## For PNG file
+options(bitmapType="cairo")
+set.seed(1234)
+
+#### Section 1:
 ### Load individual libraries (must be sctransformed)
 control = readRDS("../SS5/JXZ43/seurat/LSI_final_heart_ATAC.RDS")
+DefaultAssay(control) = "SCT"
 control
 
 LMNA1 = readRDS("../SS6/JXZ43/seurat/LSI_final_heart_ATAC.RDS")
+DefaultAssay(LMNA1) = "SCT"
 LMNA1
 
 LMNA2 = readRDS("../SS6/JXZ43/seurat/LSI_final_heart_ATAC.RDS")
+DefaultAssay(LMNA2) = "SCT"
 LMNA2
 
 ## change this accordingly
@@ -48,14 +53,15 @@ control$dataset <- "control"
 LMNA1$dataset <- "LMNA1"
 LMNA2$dataset <- "LMNA2"
 
-
+## Integration of scRNA
 heart.list <- list(control=control,LMNA1=LMNA1, LMNA2=LMNA2)
 features <- SelectIntegrationFeatures(object.list=heart.list,nfeatures=3000)
 heart.list = PrepSCTIntegration(object.list=heart.list, anchor.features=features)
 heart.anchors <- FindIntegrationAnchors(object.list=heart.list, normalization.method="SCT", anchor.features=features)
 heart.combined <- IntegrateData(anchorset=heart.anchors,normalization.method="SCT")
-save(heart.combined,features,file="step2.merged.RData")
-####
+saveRDS(heart.combined,file="step2.merged.RDS")
+
+## Dim Reduction
 heart.combined <- RunPCA(heart.combined)
 heart.combined <- RunUMAP(heart.combined,reduction="pca",dims=1:30)
 heart.combined <- FindNeighbors(heart.combined,reduction="pca",dims=1:30)
@@ -63,18 +69,56 @@ heart.combined <- FindClusters(heart.combined,resolution=0.5)
 heart.combined$sample = rep("Control")
 heart.combined$sample[grep("_2",rownames(heart.combined@meta.data))] = "LMNA1"
 heart.combined$sample[grep("_3",rownames(heart.combined@meta.data))] = "LMNA2"
-save(heart.combined,file="step3.merged.RData")
-}
 
-if(0){
-######load("step3.merged.RData")
-load("step3.merged.RData")
+### This RDS output will represent the integrated data from GEX
+saveRDS(heart.combined,file="RNA.merged.RDS")
+
 png("UMAP_RNA_sample.png",width=4000,height=1200,res=300)
 p2 <- DimPlot(heart.combined, reduction = "umap", label = TRUE, repel = TRUE, split.by="sample")
 print(p2)
 dev.off()
-quit()
-}
+
+
+##### Section 2: Integrated ATAC-seq using LSI embedding
+## First merge the scATAC data (without integration first)
+merged <- merge(control, y = c(LMNA1,LMNA2), add.cell.ids = c("control","LMNA1","LMNA2"), project = "DCM")
+merged <- FindTopFeatures(merged, min.cutoff = 10)
+merged <- RunTFIDF(merged)
+merged <- RunSVD(merged)
+merged <- RunUMAP(merged, reduction = "lsi", dims = 2:30)
+merged
+saveRDS(merged, file="merged.RDS")
+
+## Second find integration anchors
+integration.anchors <- FindIntegrationAnchors(
+  object.list = list(control,LMNA1,LMNA2),
+  anchor.features = rownames(control),
+  reduction = "rlsi",
+  dims = 2:30
+)
+saveRDS(integration.anchors, file="integration.anchors.RDS")
+
+## Third Integrate LSI embeddings
+integrated <- IntegrateEmbeddings(
+  anchorset = integration.anchors,
+  reductions = merged[["lsi"]],
+  new.reduction.name = "integrated_lsi",
+  dims.to.integrate = 1:30
+)
+saveRDS(integrated, file="integratied_ATAC.RDS")
+
+# Fourth create a new UMAP using the integrated embeddings
+integrated <- RunUMAP(integrated, reduction = "integrated_lsi", dims = 2:30)
+
+## This RDS output will represent the integrated data from ATAC
+saveRDS(integrated, file="integratied_ATAC.RDS")
+p2 <- DimPlot(integrated, group.by = "sample")
+png("UMAP_ATAC_sample.png",width=3000,height=1500,res=300)
+print(p2)
+dev.off()
+
+
+############ END OF INTEGRATION ANALYSIS #################
 
 if(1){
 ##load("step3.merged.RData")
