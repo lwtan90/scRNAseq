@@ -16,6 +16,14 @@ When you received the FASTQ file from Novogene, just follow the following workfl
 8. perform gene differential analysis using seurat_pairwise_DEanalysis.R  
 9. perform pathway analysis of differentially expressed genes using pathTEST.R  
   
+  
+For scATAC-seq integration, slight modification required:  
+1. run seurat_ATAC.R  
+2. (create a merged regions)  
+3. run seurat_reATAC.R  
+4. run sctransform_atac.R for integrative analysis  
+  
+  
 
   
 
